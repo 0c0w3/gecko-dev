@@ -1,0 +1,56 @@
+{
+  "_from": "@nlpjs/similarity@^4.14.0",
+  "_id": "@nlpjs/similarity@4.14.0",
+  "_inBundle": false,
+  "_integrity": "sha512-oClhAmkP6VVavwdW6O+rTU15FXzvp0zec3sDtTRdB8nmEFisSMo5M9Y9fkDSXF8XfVuCtsR6BMQK7+5XlDxl/g==",
+  "_location": "/@nlpjs/similarity",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@nlpjs/similarity@^4.14.0",
+    "name": "@nlpjs/similarity",
+    "escapedName": "@nlpjs%2fsimilarity",
+    "scope": "@nlpjs",
+    "rawSpec": "^4.14.0",
+    "saveSpec": null,
+    "fetchSpec": "^4.14.0"
+  },
+  "_requiredBy": [
+    "/@nlpjs/ner",
+    "/@nlpjs/nlu"
+  ],
+  "_resolved": "https://registry.npmjs.org/@nlpjs/similarity/-/similarity-4.14.0.tgz",
+  "_shasum": "88fcbb275181d843151fba88228e56cf6f46a657",
+  "_spec": "@nlpjs/similarity@^4.14.0",
+  "_where": "/Users/adw/nlpjs-test/node_modules/@nlpjs/ner",
+  "author": {
+    "name": "Jesus Seijas",
+    "email": "jesus.seijas@axa.com"
+  },
+  "bugs": {
+    "url": "https://github.com/axa-group/nlp.js/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Similarity",
+  "gitHead": "48a764d97a40355f51560177ecc0ec8cfabaa195",
+  "homepage": "https://github.com/axa-group/nlp.js#readme",
+  "license": "MIT",
+  "main": "src/index.js",
+  "maintainers": [
+    {
+      "name": "Jesus Seijas",
+      "email": "jesus.seijas@axa.com"
+    }
+  ],
+  "name": "@nlpjs/similarity",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axa-group/nlp.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "version": "4.14.0"
+}

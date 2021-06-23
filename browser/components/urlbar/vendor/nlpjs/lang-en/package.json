@@ -1,0 +1,59 @@
+{
+  "_from": "@nlpjs/lang-en@^4.14.0",
+  "_id": "@nlpjs/lang-en@4.14.0",
+  "_inBundle": false,
+  "_integrity": "sha512-RxXU26hYchO+tPXWItKWceIiEp64S+x++c1elWhtjBACZJXNAAu5MG9pjU+fMIcWfPtBj0UIGOeGdxt0VE8gFQ==",
+  "_location": "/@nlpjs/lang-en",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@nlpjs/lang-en@^4.14.0",
+    "name": "@nlpjs/lang-en",
+    "escapedName": "@nlpjs%2flang-en",
+    "scope": "@nlpjs",
+    "rawSpec": "^4.14.0",
+    "saveSpec": null,
+    "fetchSpec": "^4.14.0"
+  },
+  "_requiredBy": [
+    "/@nlpjs/basic"
+  ],
+  "_resolved": "https://registry.npmjs.org/@nlpjs/lang-en/-/lang-en-4.14.0.tgz",
+  "_shasum": "a967fa069356e1225d21c74113d61b41a9c0ad94",
+  "_spec": "@nlpjs/lang-en@^4.14.0",
+  "_where": "/Users/adw/nlpjs-test/node_modules/@nlpjs/basic",
+  "author": {
+    "name": "Jesus Seijas",
+    "email": "jesus.seijas@axa.com"
+  },
+  "bugs": {
+    "url": "https://github.com/axa-group/nlp.js/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@nlpjs/core": "^4.14.0",
+    "@nlpjs/lang-en-min": "^4.14.0"
+  },
+  "deprecated": false,
+  "description": "Core",
+  "gitHead": "48a764d97a40355f51560177ecc0ec8cfabaa195",
+  "homepage": "https://github.com/axa-group/nlp.js#readme",
+  "license": "MIT",
+  "main": "src/index.js",
+  "maintainers": [
+    {
+      "name": "Jesus Seijas",
+      "email": "jesus.seijas@axa.com"
+    }
+  ],
+  "name": "@nlpjs/lang-en",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axa-group/nlp.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "version": "4.14.0"
+}

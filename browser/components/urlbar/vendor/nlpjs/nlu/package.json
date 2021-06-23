@@ -1,0 +1,61 @@
+{
+  "_from": "@nlpjs/nlu@^4.14.0",
+  "_id": "@nlpjs/nlu@4.14.0",
+  "_inBundle": false,
+  "_integrity": "sha512-uL3r+3tyEwN67C75M1IOkQrASYWWpEecroh+k3i/Px0Kfyja45tLjBC6f15U5wDtRzHgxK8UtTSaIO+bRMzt7g==",
+  "_location": "/@nlpjs/nlu",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@nlpjs/nlu@^4.14.0",
+    "name": "@nlpjs/nlu",
+    "escapedName": "@nlpjs%2fnlu",
+    "scope": "@nlpjs",
+    "rawSpec": "^4.14.0",
+    "saveSpec": null,
+    "fetchSpec": "^4.14.0"
+  },
+  "_requiredBy": [
+    "/@nlpjs/nlp"
+  ],
+  "_resolved": "https://registry.npmjs.org/@nlpjs/nlu/-/nlu-4.14.0.tgz",
+  "_shasum": "0d3a8ffc82798a2a3e71a639519ccf461dc49786",
+  "_spec": "@nlpjs/nlu@^4.14.0",
+  "_where": "/Users/adw/nlpjs-test/node_modules/@nlpjs/nlp",
+  "author": {
+    "name": "Jesus Seijas",
+    "email": "jesus.seijas@axa.com"
+  },
+  "bugs": {
+    "url": "https://github.com/axa-group/nlp.js/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@nlpjs/core": "^4.14.0",
+    "@nlpjs/language-min": "^4.6.0",
+    "@nlpjs/neural": "^4.12.0",
+    "@nlpjs/similarity": "^4.14.0"
+  },
+  "deprecated": false,
+  "description": "Natural Language Understanding",
+  "gitHead": "48a764d97a40355f51560177ecc0ec8cfabaa195",
+  "homepage": "https://github.com/axa-group/nlp.js#readme",
+  "license": "MIT",
+  "main": "src/index.js",
+  "maintainers": [
+    {
+      "name": "Jesus Seijas",
+      "email": "jesus.seijas@axa.com"
+    }
+  ],
+  "name": "@nlpjs/nlu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axa-group/nlp.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "version": "4.14.0"
+}

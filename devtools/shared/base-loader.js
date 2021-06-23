@@ -202,6 +202,7 @@ function normalizeExt(uri) {
 // `requirer.uri` but in some cases it may be `baseURI`. In order to
 // avoid complexity we require `baseURI` with a trailing `/`.
 function resolve(id, base) {
+  dump(`***XXXadw base-loader.js resolve, id=${id} base=${base}\n`);
   if (!isRelative(id)) {
     return id;
   }

@@ -1,3 +1,5 @@
+//XXXadw see ~/nlpjs-test
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -19,6 +21,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ResetProfile: "resource://gre/modules/ResetProfile.jsm",
   Sanitizer: "resource:///modules/Sanitizer.jsm",
   Services: "resource://gre/modules/Services.jsm",
+  UrlbarNpmLoader: "resource:///modules/UrlbarNpmLoader.jsm",
   UrlbarProvider: "resource:///modules/UrlbarUtils.jsm",
   UrlbarResult: "resource:///modules/UrlbarResult.jsm",
   UrlbarUtils: "resource:///modules/UrlbarUtils.jsm",
@@ -60,78 +63,268 @@ const TIPS = {
 
 const EN_LOCALE_MATCH = /^en(-.*)$/;
 
+// // The search "documents" corresponding to each tip type.
+// const DOCUMENTS = {
+//   clear: [
+//     "cache firefox",
+//     "clear cache firefox",
+//     "clear cache in firefox",
+//     "clear cookies firefox",
+//     "clear firefox cache",
+//     "clear history firefox",
+//     "cookies firefox",
+//     "delete cookies firefox",
+//     "delete history firefox",
+//     "firefox cache",
+//     "firefox clear cache",
+//     "firefox clear cookies",
+//     "firefox clear history",
+//     "firefox cookie",
+//     "firefox cookies",
+//     "firefox delete cookies",
+//     "firefox delete history",
+//     "firefox history",
+//     "firefox not loading pages",
+//     "history firefox",
+//     "how to clear cache",
+//     "how to clear history",
+//   ],
+//   refresh: [
+//     "firefox crashing",
+//     "firefox keeps crashing",
+//     "firefox not responding",
+//     "firefox not working",
+//     "firefox refresh",
+//     "firefox slow",
+//     "how to reset firefox",
+//     "refresh firefox",
+//     "reset firefox",
+//   ],
+//   update: [
+//     "download firefox",
+//     "download mozilla",
+//     "firefox browser",
+//     "firefox download",
+//     "firefox for mac",
+//     "firefox for windows",
+//     "firefox free download",
+//     "firefox install",
+//     "firefox installer",
+//     "firefox latest version",
+//     "firefox mac",
+//     "firefox quantum",
+//     "firefox update",
+//     "firefox version",
+//     "firefox windows",
+//     "get firefox",
+//     "how to update firefox",
+//     "install firefox",
+//     "mozilla download",
+//     "mozilla firefox 2019",
+//     "mozilla firefox 2020",
+//     "mozilla firefox download",
+//     "mozilla firefox for mac",
+//     "mozilla firefox for windows",
+//     "mozilla firefox free download",
+//     "mozilla firefox mac",
+//     "mozilla firefox update",
+//     "mozilla firefox windows",
+//     "mozilla update",
+//     "update firefox",
+//     "update mozilla",
+//     "www.firefox.com",
+//   ],
+// };
+
+
 // The search "documents" corresponding to each tip type.
 const DOCUMENTS = {
   clear: [
-    "cache firefox",
-    "clear cache firefox",
-    "clear cache in firefox",
-    "clear cookies firefox",
-    "clear firefox cache",
-    "clear history firefox",
-    "cookies firefox",
-    "delete cookies firefox",
-    "delete history firefox",
-    "firefox cache",
     "firefox clear cache",
     "firefox clear cookies",
     "firefox clear history",
-    "firefox cookie",
-    "firefox cookies",
+    "firefox delete cache",
     "firefox delete cookies",
     "firefox delete history",
-    "firefox history",
-    "firefox not loading pages",
-    "history firefox",
-    "how to clear cache",
-    "how to clear history",
+//     "firefox not loading",
+//     "how to clear cache",
+//     "how to clear history",
   ],
   refresh: [
-    "firefox crashing",
-    "firefox keeps crashing",
+    "firefox crash",
+//     "firefox keeps crashing",
     "firefox not responding",
     "firefox not working",
     "firefox refresh",
     "firefox slow",
-    "how to reset firefox",
-    "refresh firefox",
-    "reset firefox",
+//     "how to reset firefox",
+    "firefox reset",
   ],
   update: [
-    "download firefox",
-    "download mozilla",
-    "firefox browser",
     "firefox download",
-    "firefox for mac",
-    "firefox for windows",
-    "firefox free download",
-    "firefox install",
-    "firefox installer",
-    "firefox latest version",
+    "firefox browser",
     "firefox mac",
-    "firefox quantum",
-    "firefox update",
-    "firefox version",
     "firefox windows",
-    "get firefox",
-    "how to update firefox",
-    "install firefox",
-    "mozilla download",
-    "mozilla firefox 2019",
-    "mozilla firefox 2020",
-    "mozilla firefox download",
-    "mozilla firefox for mac",
-    "mozilla firefox for windows",
-    "mozilla firefox free download",
-    "mozilla firefox mac",
-    "mozilla firefox update",
-    "mozilla firefox windows",
-    "mozilla update",
-    "update firefox",
-    "update mozilla",
-    "www.firefox.com",
+    "firefox install",
+//     "firefox latest version",
+    "firefox update",
+//     "firefox version",
+//     "firefox get",
+//     "how to update firefox",
   ],
 };
+
+// // The search "documents" corresponding to each tip type.
+// const DOCUMENTS = {
+//   clear: [
+//     "clear cache",
+//     "clear cookies",
+//     "clear history",
+//     "delete cache",
+//     "delete cookies",
+//     "delete history",
+// //     "not loading",
+// //     "how to clear cache",
+// //     "how to clear history",
+//   ],
+//   refresh: [
+//     "crash",
+// //     "keeps crashing",
+//     "not responding",
+//     "not working",
+//     "refresh",
+//     "slow",
+// //     "how to reset firefox",
+//     "reset",
+//   ],
+//   update: [
+//     "download",
+//     "browser",
+//     "mac",
+//     "windows",
+//     "install",
+// //     "latest version",
+//     "update",
+// //     "version",
+// //     "get",
+// //     "how to update firefox",
+//   ],
+// };
+
+// const DOCUMENTS_JA = {
+//   clear: [
+//     "firefoxのキャッシュを消去する",
+//     "消去する cookies firefox",
+//     "消去する データ firefox",
+// //     "cookies firefox",
+//     "消去する cookies firefox",
+// //     "消去する データ firefox",
+// //     "firefox 消去する cookies",
+// //     "firefox 消去する データ",
+// //     "firefox cookie",
+// //     "firefox cookies",
+// //     "firefox 消去する cookies",
+// //     "firefox 消去する データ",
+// //     "firefox データ",
+// //     "データ firefox",
+// //     "去する データ",
+//   ],
+//   refresh: [
+//     "firefox クラッシュ",
+//     "firefox 動いてない",
+//     "firefox リフレッシュ",
+//     "firefox 遅い",
+//   ],
+//   update: [
+//     "mozilla ダウンロードする",
+// //     "firefox browser",
+//     "firefox ダウンロードする",
+// //     "firefox mac",
+// //     "firefox windows",
+//     "firefox ただのダウンロード",
+//     "firefox インストールする",
+// //     "firefox quantum",
+// //     "mozilla アップデートする",
+// //     "firefox 最新リリース",
+// //     "firefox バージョン",
+// //     "get firefox",
+// //     "mozilla firefox 2019",
+// //     "mozilla firefox 2020",
+// //     "mozilla firefox ダウンロードする",
+// //     "mozilla firefox mac",
+// //     "mozilla firefox windows",
+// //     "mozilla firefox ただのダウンロード",
+// //     "mozilla firefox アップデートする",
+// //     "mozilla アップデートする",
+// //     "www.firefox.com",
+//   ],
+// };
+
+const DOCUMENTS_JA = {
+  clear: [
+    "firefox キャッシュ",
+    "firefox 消去する",
+    "firefox cookies",
+    "firefox データ",
+  ],
+  refresh: [
+    "firefox クラッシュ",
+    "firefox 動いてない",
+    "firefox リフレッシュ",
+    "firefox 遅い",
+  ],
+  update: [
+    "firefox ダウンロードする",
+    "firefox インストールする",
+    "firefox アップデートする",
+    "firefox バージョン",
+//     "firefox 最新リリース",
+//     "get firefox",
+//     "mozilla firefox 2019",
+//     "mozilla firefox 2020",
+//     "mozilla firefox ダウンロードする",
+//     "mozilla firefox mac",
+//     "mozilla firefox windows",
+//     "mozilla firefox ただのダウンロード",
+//     "mozilla firefox アップデートする",
+//     "mozilla アップデートする",
+//     "www.firefox.com",
+  ],
+};
+
+
+// const DOCUMENTS_JA = {
+//   clear: [
+//     "キャッシュ",
+//     "消去する",
+//     "cookies",
+//     "データ",
+//   ],
+//   refresh: [
+//     "クラッシュ",
+//     "動いてない",
+//     "リフレッシュ",
+//     "遅い",
+//   ],
+//   update: [
+//     "ダウンロードする",
+//     "インストールする",
+//     "アップデートする",
+//     "バージョン",
+// //     "firefox 最新リリース",
+// //     "get firefox",
+// //     "mozilla firefox 2019",
+// //     "mozilla firefox 2020",
+// //     "mozilla firefox ダウンロードする",
+// //     "mozilla firefox mac",
+// //     "mozilla firefox windows",
+// //     "mozilla firefox ただのダウンロード",
+// //     "mozilla firefox アップデートする",
+// //     "mozilla アップデートする",
+// //     "www.firefox.com",
+//   ],
+// };
+
 
 // In order to determine whether we should show an update tip, we check for app
 // updates, but only once per this time period.
@@ -455,6 +648,47 @@ class ProviderInterventions extends UrlbarProvider {
       }
       return queryScorer;
     });
+
+    this._makeNLP();
+  }
+
+  async _makeNLP() {
+    let window = BrowserWindowTracker.getTopWindow();
+    if (!window) {
+      throw new Error("XXXadw No window");
+    }
+    let require = UrlbarNpmLoader({
+      window,
+      baseURI: "resource:///modules/",
+    }).require;
+    let { dockStart } = require('@nlpjs/basic');
+//     let dock = await dockStart({ use: ["Basic"]});
+//     let dock = await dockStart({ use: ["Basic", "LangJa"]});
+    let dock = await dockStart({
+      use: ["Basic", "LangEn", "LangJa"],
+//       threshold: 1.0, //XXXadw doesn't work
+    });
+    let nlp = dock.get("nlp");
+
+//     console.log(`******XXXadw nlp`);
+//     console.log(nlp);
+
+    nlp.addLanguage("en");
+    for (let [intent, phrases] of Object.entries(DOCUMENTS)) {
+      for (let phrase of phrases) {
+        nlp.addDocument("en", phrase, intent);
+      }
+    }
+
+    nlp.addLanguage("ja");
+    for (let [intent, phrases] of Object.entries(DOCUMENTS_JA)) {
+      for (let phrase of phrases) {
+        nlp.addDocument("ja", phrase, intent);
+      }
+    }
+
+    await nlp.train();
+    this._nlp = nlp;
   }
 
   /**
@@ -485,7 +719,7 @@ class ProviderInterventions extends UrlbarProvider {
    * @param {UrlbarQueryContext} queryContext The query context object
    * @returns {boolean} Whether this provider should be invoked for the search.
    */
-  isActive(queryContext) {
+  async isActive(queryContext) {
     if (
       !queryContext.searchString ||
       !EN_LOCALE_MATCH.test(Services.locale.appLocaleAsBCP47) ||
@@ -494,21 +728,50 @@ class ProviderInterventions extends UrlbarProvider {
       return false;
     }
 
+    if (!this._nlp) {
+      dump(`***XXX UPI.isActive, !this._nlp\n`);
+      return false;
+    }
+
     this.currentTip = TIPS.NONE;
 
-    // Get the scores and the top score.
-    let docScores = this.queryScorer.score(queryContext.searchString);
-    let topDocScore = docScores[0];
+//     // Get the scores and the top score.
+//     let docScores = this.queryScorer.score(queryContext.searchString);
+//     let topDocScore = docScores[0];
 
-    // Multiple docs may have the top score, so collect them all.
+//     // Multiple docs may have the top score, so collect them all.
+//     let topDocIDs = new Set();
+//     if (topDocScore.score != Infinity) {
+//       for (let { score, document } of docScores) {
+//         if (score != topDocScore.score) {
+//           break;
+//         }
+//         topDocIDs.add(document.id);
+//       }
+//     }
+
+    // Get the scores and the top score.
+
+//     let lang = "en";
+// //     let lang = "ja";
+//     let response = await this._nlp.process(lang, queryContext.searchString);
+
+    this._nlp.settings.threshold = 0.9; //XXXadw works
+    let response = await this._nlp.process(queryContext.searchString);
+//     let response = await this._nlp.process(
+//       undefined,
+//       queryContext.searchString,
+//       undefined,
+//       {
+//         threshold: 0.9, //XXXadw doesn't work
+//       }
+//     );
+
+    dump(`***XXX response=${JSON.stringify(response, null, 2)}\n`);
+
     let topDocIDs = new Set();
-    if (topDocScore.score != Infinity) {
-      for (let { score, document } of docScores) {
-        if (score != topDocScore.score) {
-          break;
-        }
-        topDocIDs.add(document.id);
-      }
+    if (response.intent != "None") {
+      topDocIDs.add(response.intent);
     }
 
     // Determine the tip to show, if any. If there are multiple top-score docs,

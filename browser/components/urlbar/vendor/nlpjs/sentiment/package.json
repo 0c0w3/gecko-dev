@@ -1,0 +1,60 @@
+{
+  "_from": "@nlpjs/sentiment@^4.14.1",
+  "_id": "@nlpjs/sentiment@4.14.1",
+  "_inBundle": false,
+  "_integrity": "sha512-FVQbblWHjHI1ao0ioByCUm7Xb6P3PwXycriofRaoG3oil4FwyCEWqhCq+YTx1o/4DNTpoft+UriGemPB8z1x1Q==",
+  "_location": "/@nlpjs/sentiment",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@nlpjs/sentiment@^4.14.1",
+    "name": "@nlpjs/sentiment",
+    "escapedName": "@nlpjs%2fsentiment",
+    "scope": "@nlpjs",
+    "rawSpec": "^4.14.1",
+    "saveSpec": null,
+    "fetchSpec": "^4.14.1"
+  },
+  "_requiredBy": [
+    "/@nlpjs/nlp"
+  ],
+  "_resolved": "https://registry.npmjs.org/@nlpjs/sentiment/-/sentiment-4.14.1.tgz",
+  "_shasum": "ff28ab0da63f937a809fad9f34d38fb6ce094903",
+  "_spec": "@nlpjs/sentiment@^4.14.1",
+  "_where": "/Users/adw/nlpjs-test/node_modules/@nlpjs/nlp",
+  "author": {
+    "name": "Jesus Seijas",
+    "email": "jesus.seijas@axa.com"
+  },
+  "bugs": {
+    "url": "https://github.com/axa-group/nlp.js/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@nlpjs/core": "^4.14.0",
+    "@nlpjs/language-min": "^4.6.0",
+    "@nlpjs/neural": "^4.12.0"
+  },
+  "deprecated": false,
+  "description": "Sentiment Analysis",
+  "gitHead": "626c9676962daffb0d4956e3c2825649281c1aa8",
+  "homepage": "https://github.com/axa-group/nlp.js#readme",
+  "license": "MIT",
+  "main": "src/index.js",
+  "maintainers": [
+    {
+      "name": "Jesus Seijas",
+      "email": "jesus.seijas@axa.com"
+    }
+  ],
+  "name": "@nlpjs/sentiment",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axa-group/nlp.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "version": "4.14.1"
+}

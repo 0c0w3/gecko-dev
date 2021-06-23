@@ -1,0 +1,56 @@
+{
+  "_from": "@nlpjs/neural@^4.12.0",
+  "_id": "@nlpjs/neural@4.12.0",
+  "_inBundle": false,
+  "_integrity": "sha512-ESAtCA3UfrPxiQxUw+douW2JywoZawkLtPC3sOxXDr+B+fpz+mAQBZ3rPp0JPpF3Si8Eo/SGbYhiPz07YpK7zA==",
+  "_location": "/@nlpjs/neural",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@nlpjs/neural@^4.12.0",
+    "name": "@nlpjs/neural",
+    "escapedName": "@nlpjs%2fneural",
+    "scope": "@nlpjs",
+    "rawSpec": "^4.12.0",
+    "saveSpec": null,
+    "fetchSpec": "^4.12.0"
+  },
+  "_requiredBy": [
+    "/@nlpjs/nlu",
+    "/@nlpjs/sentiment"
+  ],
+  "_resolved": "https://registry.npmjs.org/@nlpjs/neural/-/neural-4.12.0.tgz",
+  "_shasum": "9cb8ec572fe85e4a7d681d0cb41ad824d57bed87",
+  "_spec": "@nlpjs/neural@^4.12.0",
+  "_where": "/Users/adw/nlpjs-test/node_modules/@nlpjs/nlu",
+  "author": {
+    "name": "Jesus Seijas",
+    "email": "jesus.seijas@axa.com"
+  },
+  "bugs": {
+    "url": "https://github.com/axa-group/nlp.js/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Neural Network",
+  "gitHead": "381e2a74ebbb634ba944cf05355232d580189a78",
+  "homepage": "https://github.com/axa-group/nlp.js#readme",
+  "license": "MIT",
+  "main": "src/index.js",
+  "maintainers": [
+    {
+      "name": "Jesus Seijas",
+      "email": "jesus.seijas@axa.com"
+    }
+  ],
+  "name": "@nlpjs/neural",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axa-group/nlp.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "version": "4.12.0"
+}

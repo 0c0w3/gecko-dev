@@ -16,6 +16,7 @@ EXTRA_JS_MODULES += [
     "UrlbarEventBufferer.jsm",
     "UrlbarInput.jsm",
     "UrlbarMuxerUnifiedComplete.jsm",
+    'UrlbarNpmLoader.jsm',
     "UrlbarPrefs.jsm",
     "UrlbarProviderAboutPages.jsm",
     "UrlbarProviderAliasEngines.jsm",
@@ -48,6 +49,17 @@ EXTRA_JS_MODULES += [
     "UrlbarValueFormatter.jsm",
     "UrlbarView.jsm",
 ]
+
+EXTRA_JS_MODULES += [
+    'vendor/**/*.dat.gz', # kuromoji/dict/*.dat.gz
+    'vendor/**/*.js',
+    'vendor/**/*.json',
+]
+
+# EXTRA_JS_MODULES += [
+#     'vendor/nlpjs/console-connector/src/console-connector.js',
+#     'vendor/kuromoji/src/Tokenizer.js',
+# ]
 
 TESTING_JS_MODULES += [
     "tests/UrlbarTestUtils.jsm",

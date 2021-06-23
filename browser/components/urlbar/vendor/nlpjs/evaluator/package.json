@@ -1,0 +1,59 @@
+{
+  "_from": "@nlpjs/evaluator@^4.11.3",
+  "_id": "@nlpjs/evaluator@4.11.3",
+  "_inBundle": false,
+  "_integrity": "sha512-F+8Nn52gtcEE6jmEI3j+cSn+K8hUM0SyYn4aiFzMlwu4jW7FZKztP/mdlBN7JXW20fxfLLoeWb2obWSem5OfZA==",
+  "_location": "/@nlpjs/evaluator",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@nlpjs/evaluator@^4.11.3",
+    "name": "@nlpjs/evaluator",
+    "escapedName": "@nlpjs%2fevaluator",
+    "scope": "@nlpjs",
+    "rawSpec": "^4.11.3",
+    "saveSpec": null,
+    "fetchSpec": "^4.11.3"
+  },
+  "_requiredBy": [
+    "/@nlpjs/basic"
+  ],
+  "_resolved": "https://registry.npmjs.org/@nlpjs/evaluator/-/evaluator-4.11.3.tgz",
+  "_shasum": "bd1cc9af445861bceff49da5ee55cdfda073d5bc",
+  "_spec": "@nlpjs/evaluator@^4.11.3",
+  "_where": "/Users/adw/nlpjs-test/node_modules/@nlpjs/basic",
+  "author": {
+    "name": "Jesus Seijas",
+    "email": "jesus.seijas@axa.com"
+  },
+  "bugs": {
+    "url": "https://github.com/axa-group/nlp.js/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "escodegen": "^2.0.0",
+    "esprima": "^4.0.1"
+  },
+  "deprecated": false,
+  "description": "Evaluator",
+  "gitHead": "ea70abb21cc0d24c2daa904f48d5177c2ad8c5ab",
+  "homepage": "https://github.com/axa-group/nlp.js#readme",
+  "license": "MIT",
+  "main": "src/index.js",
+  "maintainers": [
+    {
+      "name": "Jesus Seijas",
+      "email": "jesus.seijas@axa.com"
+    }
+  ],
+  "name": "@nlpjs/evaluator",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axa-group/nlp.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "version": "4.11.3"
+}

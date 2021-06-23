@@ -1,0 +1,55 @@
+{
+  "_from": "@nlpjs/slot@^4.9.2",
+  "_id": "@nlpjs/slot@4.9.2",
+  "_inBundle": false,
+  "_integrity": "sha512-52XRjkxktF62QErwNKZBb/JEaUUXVJmQHxJlHocl2NZ6YhDAt1kY2/YnoPgnpupem58YoLeNnMpFt4AzbojIhA==",
+  "_location": "/@nlpjs/slot",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@nlpjs/slot@^4.9.2",
+    "name": "@nlpjs/slot",
+    "escapedName": "@nlpjs%2fslot",
+    "scope": "@nlpjs",
+    "rawSpec": "^4.9.2",
+    "saveSpec": null,
+    "fetchSpec": "^4.9.2"
+  },
+  "_requiredBy": [
+    "/@nlpjs/nlp"
+  ],
+  "_resolved": "https://registry.npmjs.org/@nlpjs/slot/-/slot-4.9.2.tgz",
+  "_shasum": "31ca1fc453a61ab635773afec676dbd238cb7b34",
+  "_spec": "@nlpjs/slot@^4.9.2",
+  "_where": "/Users/adw/nlpjs-test/node_modules/@nlpjs/nlp",
+  "author": {
+    "name": "Jesus Seijas",
+    "email": "jesus.seijas@axa.com"
+  },
+  "bugs": {
+    "url": "https://github.com/axa-group/nlp.js/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Slot filling manager",
+  "gitHead": "956809b1d31b96962f588bff97aef9b73794af4d",
+  "homepage": "https://github.com/axa-group/nlp.js#readme",
+  "license": "MIT",
+  "main": "src/index.js",
+  "maintainers": [
+    {
+      "name": "Jesus Seijas",
+      "email": "jesus.seijas@axa.com"
+    }
+  ],
+  "name": "@nlpjs/slot",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axa-group/nlp.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "version": "4.9.2"
+}
