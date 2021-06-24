@@ -140,63 +140,69 @@ const PHRASE_TREE_DOCUMENTS = {
   ],
 };
 
-// The NLP.js search "documents" corresponding to each tip type.
-const NLPJS_DOCUMENTS = {
+// NLP.js data and "documents" per language.
+const NLPJS_LANGUAGE_DATA = {
   en: {
-    clear: [
-      "firefox clear cache",
-      "firefox clear cookies",
-      "firefox clear history",
-      "firefox delete cache",
-      "firefox delete cookies",
-      "firefox delete history",
-  //     "firefox not loading",
-  //     "how to clear cache",
-  //     "how to clear history",
-    ],
-    refresh: [
-      "firefox crash",
-  //     "firefox keeps crashing",
-      "firefox not responding",
-      "firefox not working",
-      "firefox refresh",
-      "firefox slow",
-  //     "how to reset firefox",
-      "firefox reset",
-    ],
-    update: [
-      "firefox download",
-      "firefox browser",
-      "firefox mac",
-      "firefox windows",
-      "firefox install",
-  //     "firefox latest version",
-      "firefox update",
-  //     "firefox version",
-  //     "firefox get",
-  //     "how to update firefox",
-    ],
+    use: "LangEn",
+    documents: {
+      clear: [
+        "firefox clear cache",
+        "firefox clear cookies",
+        "firefox clear history",
+        "firefox delete cache",
+        "firefox delete cookies",
+        "firefox delete history",
+    //     "firefox not loading",
+    //     "how to clear cache",
+    //     "how to clear history",
+      ],
+      refresh: [
+        "firefox crash",
+    //     "firefox keeps crashing",
+        "firefox not responding",
+        "firefox not working",
+        "firefox refresh",
+        "firefox slow",
+    //     "how to reset firefox",
+        "firefox reset",
+      ],
+      update: [
+        "firefox download",
+        "firefox browser",
+        "firefox mac",
+        "firefox windows",
+        "firefox install",
+    //     "firefox latest version",
+        "firefox update",
+    //     "firefox version",
+    //     "firefox get",
+    //     "how to update firefox",
+      ],
+    },
   },
   ja: {
-    clear: [
-      "firefox キャッシュ",
-      "firefox 消去",
-      "firefox cookies",
-      "firefox データ",
-    ],
-    refresh: [
-      "firefox クラッシュ",
-      "firefox 動いてない",
-      "firefox リフレッシュ",
-      "firefox 遅い",
-    ],
-    update: [
-      "firefox ダウンロード",
-      "firefox インストール",
-      "firefox アップデート",
-      "firefox バージョン",
-  //     "firefox 最新リリース",
-    ],
+    use: "LangJa",
+    documents: {
+      clear: [
+        "firefox キャッシュ",
+        "firefox 消去",
+        "firefox cookies",
+        "firefox データ",
+      ],
+      refresh: [
+        "firefox クラッシュ",
+        "firefox 動いてない",
+        "firefox リフレッシュ",
+        "firefox 遅い",
+      ],
+      update: [
+        "firefox ダウンロード",
+        "firefox インストール",
+        "firefox アップデート",
+        "firefox バージョン",
+    //     "firefox 最新リリース",
+      ],
+    },
   },
 };
 
@@ -565,15 +571,17 @@ class ProviderInterventions extends UrlbarProvider {
     }).require;
     let { dockStart } = require("@nlpjs/basic");
     let dock = await dockStart({
-      use: ["Basic", "LangEn", "LangJa"],
+      use: ["Basic"].concat(
+        Object.values(NLPJS_LANGUAGE_DATA).map(data => data.use)
+      ),
     });
     let nlp = dock.get("nlp");
 
     nlp.settings.threshold = UrlbarPrefs.get(NLPJS_THRESHOLD_PREF);
 
-    for (let [lang, docsByIntent] of Object.entries(NLPJS_DOCUMENTS)) {
+    for (let [lang, data] of Object.entries(NLPJS_LANGUAGE_DATA)) {
       nlp.addLanguage(lang);
-      for (let [intent, docs] of Object.entries(docsByIntent)) {
+      for (let [intent, docs] of Object.entries(data.documents)) {
         for (let doc of docs) {
           nlp.addDocument(lang, doc, intent);
         }
