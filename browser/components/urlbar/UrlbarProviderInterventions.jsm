@@ -1,5 +1,3 @@
-//XXXadw see ~/nlpjs-test
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -502,6 +500,7 @@ function getL10nPropertiesForTip(tip) {
 class ProviderInterventions extends UrlbarProvider {
   constructor() {
     super();
+
     // The tip we should currently show.
     this.currentTip = TIPS.NONE;
 
@@ -536,7 +535,7 @@ class ProviderInterventions extends UrlbarProvider {
     switch (pref) {
       case NLPJS_ENABLED_PREF:
         if (this._nlpjsEnabled) {
-          this._makeNLP();
+          this._ensureNLP();
         }
         break;
     }
@@ -622,15 +621,14 @@ class ProviderInterventions extends UrlbarProvider {
       return false;
     }
 
-    if (!this._nlp) {
-      console.log(`***XXX UPI.isActive, !this._nlp`);
-      return false;
-    }
-
     this.currentTip = TIPS.NONE;
 
     let topDocIDs = new Set();
     if (this._nlpjsEnabled) {
+      if (!this._nlp) {
+        console.log(`***XXX UPI.isActive, !this._nlp`);
+        return false;
+      }
       let response = await this._nlp.process(queryContext.searchString);
       console.log(`***XXX response=`, response);
       if (response.intent != "None") {
