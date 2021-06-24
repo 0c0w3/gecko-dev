@@ -67,6 +67,35 @@ const TIPS = {
 
 // NLP.js data and "documents" per language.
 const NLPJS_LANGUAGE_DATA = {
+  de: {
+    use: "LangDe",
+    documents: {
+      clear: [
+        "firefox cache leeren",
+        "firefox cookies leeren",
+        "firefox chronik leeren",
+        "firefox cache löschen",
+        "firefox cookies löschen",
+        "firefox chronik löschen",
+      ],
+      refresh: [
+        "firefox absturz",
+        "firefox reagiert nicht",
+        "firefox funktioniert nicht",
+        "firefox aktualisieren",
+        "firefox langsam",
+        "firefox zurücksetzen",
+      ],
+      update: [
+        "firefox download",
+        "firefox browser",
+        "firefox mac",
+        "firefox windows",
+        "firefox installieren",
+        "firefox aktualisieren",
+      ],
+    },
+  },
   en: {
     use: "LangEn",
     documents: {
