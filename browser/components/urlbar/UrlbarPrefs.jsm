@@ -84,6 +84,9 @@ const PREF_URLBAR_DEFAULTS = new Map([
   // focused.
   ["experimental.expandTextOnFocus", false],
 
+  ["experimental.nlpjs.enabled", true],
+  ["experimental.nlpjs.threshold", [0.8, "float"]],
+
   // Whether the urlbar displays a permanent search button.
   ["experimental.searchButton", false],
 
