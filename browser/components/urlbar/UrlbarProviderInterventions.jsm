@@ -65,7 +65,73 @@ const TIPS = {
   UPDATE_WEB: "intervention_update_web",
 };
 
-const EN_LOCALE_MATCH = /^en(-.*)$/;
+// NLP.js data and "documents" per language.
+const NLPJS_LANGUAGE_DATA = {
+  en: {
+    use: "LangEn",
+    documents: {
+      clear: [
+        "firefox clear cache",
+        "firefox clear cookies",
+        "firefox clear history",
+        "firefox delete cache",
+        "firefox delete cookies",
+        "firefox delete history",
+        // "firefox not loading",
+        // "how to clear cache",
+        // "how to clear history",
+      ],
+      refresh: [
+        "firefox crash",
+        // "firefox keeps crashing",
+        "firefox not responding",
+        "firefox not working",
+        "firefox refresh",
+        "firefox slow",
+        // "how to reset firefox",
+        "firefox reset",
+      ],
+      update: [
+        "firefox download",
+        "firefox browser",
+        "firefox mac",
+        "firefox windows",
+        "firefox install",
+        // "firefox latest version",
+        "firefox update",
+        // "firefox version",
+        // "firefox get",
+        // "how to update firefox",
+      ],
+    },
+  },
+  ja: {
+    use: "LangJa",
+    documents: {
+      clear: [
+        "firefox キャッシュ",
+        "firefox 消去",
+        "firefox cookies",
+        "firefox データ",
+      ],
+      refresh: [
+        "firefox クラッシュ",
+        "firefox 動いてない",
+        "firefox リフレッシュ",
+        "firefox 遅い",
+      ],
+      update: [
+        "firefox ダウンロード",
+        "firefox インストール",
+        "firefox アップデート",
+        "firefox バージョン",
+        // "firefox 最新リリース",
+      ],
+    },
+  },
+};
+
+const NLPJS_LOCALES = Object.keys(NLPJS_LANGUAGE_DATA);
 
 // The phrase tree search "documents" corresponding to each tip type.
 const PHRASE_TREE_DOCUMENTS = {
@@ -140,366 +206,11 @@ const PHRASE_TREE_DOCUMENTS = {
   ],
 };
 
-// NLP.js data and "documents" per language.
-const NLPJS_LANGUAGE_DATA = {
-  en: {
-    use: "LangEn",
-    documents: {
-      clear: [
-        "firefox clear cache",
-        "firefox clear cookies",
-        "firefox clear history",
-        "firefox delete cache",
-        "firefox delete cookies",
-        "firefox delete history",
-        // "firefox not loading",
-        // "how to clear cache",
-        // "how to clear history",
-      ],
-      refresh: [
-        "firefox crash",
-        // "firefox keeps crashing",
-        "firefox not responding",
-        "firefox not working",
-        "firefox refresh",
-        "firefox slow",
-        // "how to reset firefox",
-        "firefox reset",
-      ],
-      update: [
-        "firefox download",
-        "firefox browser",
-        "firefox mac",
-        "firefox windows",
-        "firefox install",
-        // "firefox latest version",
-        "firefox update",
-        // "firefox version",
-        // "firefox get",
-        // "how to update firefox",
-      ],
-    },
-  },
-  ja: {
-    use: "LangJa",
-    documents: {
-      clear: [
-        "firefox キャッシュ",
-        "firefox 消去",
-        "firefox cookies",
-        "firefox データ",
-      ],
-      refresh: [
-        "firefox クラッシュ",
-        "firefox 動いてない",
-        "firefox リフレッシュ",
-        "firefox 遅い",
-      ],
-      update: [
-        "firefox ダウンロード",
-        "firefox インストール",
-        "firefox アップデート",
-        "firefox バージョン",
-        // "firefox 最新リリース",
-      ],
-    },
-  },
-};
-
-const NLPJS_LOCALES = Object.keys(NLPJS_LANGUAGE_DATA);
-
 // In order to determine whether we should show an update tip, we check for app
 // updates, but only once per this time period.
 const UPDATE_CHECK_PERIOD_MS = 12 * 60 * 60 * 1000; // 12 hours
 
-/**
- * A node in the QueryScorer's phrase tree.
- */
-class Node {
-  constructor(word) {
-    this.word = word;
-    this.documents = new Set();
-    this.childrenByWord = new Map();
-  }
-}
-
-/**
- * This class scores a query string against sets of phrases.  To refer to a
- * single set of phrases, we borrow the term "document" from search engine
- * terminology.  To use this class, first add your documents with `addDocument`,
- * and then call `score` with a query string.  `score` returns a sorted array of
- * document-score pairs.
- *
- * The scoring method is fairly simple and is based on Levenshtein edit
- * distance.  Therefore, lower scores indicate a better match than higher
- * scores.  In summary, a query matches a phrase if the query starts with the
- * phrase.  So a query "firefox update foo bar" matches the phrase "firefox
- * update" for example.  A query matches a document if it matches any phrase in
- * the document.  The query and phrases are compared word for word, and we allow
- * fuzzy matching by computing the Levenshtein edit distance in each comparison.
- * The amount of fuzziness allowed is controlled with `distanceThreshold`.  If
- * the distance in a comparison is greater than this threshold, then the phrase
- * does not match the query.  The final score for a document is the minimum edit
- * distance between its phrases and the query.
- *
- * As mentioned, `score` returns a sorted array of document-score pairs.  It's
- * up to you to filter the array to exclude scores above a certain threshold, or
- * to take the top scorer, etc.
- */
-class QueryScorer {
-  /**
-   * @param {number} distanceThreshold
-   *   Edit distances no larger than this value are considered matches.
-   * @param {Map} variations
-   *   For convenience, the scorer can augment documents by replacing certain
-   *   words with other words and phrases. This mechanism is called variations.
-   *   This keys of this map are words that should be replaced, and the values
-   *   are the replacement words or phrases.  For example, if you add a document
-   *   whose only phrase is "firefox update", normally the scorer will register
-   *   only this single phrase for the document.  However, if you pass the value
-   *   `new Map(["firefox", ["fire fox", "fox fire", "foxfire"]])` for this
-   *   parameter, it will register 4 total phrases for the document: "fire fox
-   *   update", "fox fire update", "foxfire update", and the original "firefox
-   *   update".
-   */
-  constructor({ distanceThreshold = 1, variations = new Map() } = {}) {
-    this._distanceThreshold = distanceThreshold;
-    this._variations = variations;
-    this._documents = new Set();
-    this._rootNode = new Node();
-  }
-
-  /**
-   * Adds a document to the scorer.
-   *
-   * @param {object} doc
-   *   The document.
-   * @param {string} doc.id
-   *   The document's ID.
-   * @param {array} doc.phrases
-   *   The set of phrases in the document.  Each phrase should be a string.
-   */
-  addDocument(doc) {
-    this._documents.add(doc);
-
-    for (let phraseStr of doc.phrases) {
-      // Split the phrase and lowercase the words.
-      let phrase = phraseStr
-        .trim()
-        .split(/\s+/)
-        .map(word => word.toLocaleLowerCase());
-
-      // Build a phrase list that contains the original phrase plus its
-      // variations, if any.
-      let phrases = [phrase];
-      for (let [triggerWord, variations] of this._variations) {
-        let index = phrase.indexOf(triggerWord);
-        if (index >= 0) {
-          for (let variation of variations) {
-            let variationPhrase = Array.from(phrase);
-            variationPhrase.splice(index, 1, ...variation.split(/\s+/));
-            phrases.push(variationPhrase);
-          }
-        }
-      }
-
-      // Finally, add the phrases to the phrase tree.
-      for (let completedPhrase of phrases) {
-        this._buildPhraseTree(this._rootNode, doc, completedPhrase, 0);
-      }
-    }
-  }
-
-  /**
-   * Scores a query string against the documents in the scorer.
-   *
-   * @param {string} queryString
-   *   The query string to score.
-   * @returns {array}
-   *   An array of objects: { document, score }.  Each element in the array is a
-   *   a document and its score against the query string.  The elements are
-   *   ordered by score from low to high.  Scores represent edit distance, so
-   *   lower scores are better.
-   */
-  score(queryString) {
-    let queryWords = queryString
-      .trim()
-      .split(/\s+/)
-      .map(word => word.toLocaleLowerCase());
-    let minDistanceByDoc = this._traverse({ queryWords });
-    let results = [];
-    for (let doc of this._documents) {
-      let distance = minDistanceByDoc.get(doc);
-      results.push({
-        document: doc,
-        score: distance === undefined ? Infinity : distance,
-      });
-    }
-    results.sort((a, b) => a.score - b.score);
-    return results;
-  }
-
-  /**
-   * Builds the phrase tree based on the current documents.
-   *
-   * The phrase tree lets us efficiently match queries against phrases.  Each
-   * path through the tree starting from the root and ending at a leaf
-   * represents a complete phrase in a document (or more than one document, if
-   * the same phrase is present in multiple documents).  Each node in the path
-   * represents a word in the phrase.  To match a query, we start at the root,
-   * and in the root we look up the query's first word.  If the word matches the
-   * first word of any phrase, then the root will have a child node representing
-   * that word, and we move on to the child node.  Then we look up the query's
-   * second word in the child node, and so on, until either a lookup fails or we
-   * reach a leaf node.
-   *
-   * @param {Node} node
-   *   The current node being visited.
-   * @param {object} doc
-   *   The document whose phrases are being added to the tree.
-   * @param {array} phrase
-   *   The phrase to add to the tree.
-   * @param {number} wordIndex
-   *   The index in the phrase of the current word.
-   */
-  _buildPhraseTree(node, doc, phrase, wordIndex) {
-    if (phrase.length == wordIndex) {
-      // We're done with this phrase.
-      return;
-    }
-
-    let word = phrase[wordIndex].toLocaleLowerCase();
-    let child = node.childrenByWord.get(word);
-    if (!child) {
-      child = new Node(word);
-      node.childrenByWord.set(word, child);
-    }
-    child.documents.add(doc);
-
-    // Recurse with the next word in the phrase.
-    this._buildPhraseTree(child, doc, phrase, wordIndex + 1);
-  }
-
-  /**
-   * Traverses a path in the phrase tree in order to score a query.  See
-   * `_buildPhraseTree` for a description of how this works.
-   *
-   * @param {array} queryWords
-   *   The query being scored, split into words.
-   * @param {Node} node
-   *   The node currently being visited.
-   * @param {Map} minDistanceByDoc
-   *   Keeps track of the minimum edit distance for each document as the
-   *   traversal continues.
-   * @param {number} queryWordsIndex
-   *   The current index in the query words array.
-   * @param {number} phraseDistance
-   *   The total edit distance between the query and the path in the tree that's
-   *   been traversed so far.
-   * @returns {Map} minDistanceByDoc
-   */
-  _traverse({
-    queryWords,
-    node = this._rootNode,
-    minDistanceByDoc = new Map(),
-    queryWordsIndex = 0,
-    phraseDistance = 0,
-  } = {}) {
-    if (!node.childrenByWord.size) {
-      // We reached a leaf node.  The query has matched a phrase.  If the query
-      // and the phrase have the same number of words, then queryWordsIndex ==
-      // queryWords.length also.  Otherwise the query contains more words than
-      // the phrase.  We still count that as a match.
-      for (let doc of node.documents) {
-        minDistanceByDoc.set(
-          doc,
-          Math.min(
-            phraseDistance,
-            minDistanceByDoc.has(doc) ? minDistanceByDoc.get(doc) : Infinity
-          )
-        );
-      }
-      return minDistanceByDoc;
-    }
-
-    if (queryWordsIndex == queryWords.length) {
-      // We exhausted all the words in the query but have not reached a leaf
-      // node.  No match; the query has matched a phrase(s) up to this point,
-      // but it doesn't have enough words.
-      return minDistanceByDoc;
-    }
-
-    // Compare each word in the node to the current query word.
-    let queryWord = queryWords[queryWordsIndex];
-    for (let [childWord, child] of node.childrenByWord) {
-      let distance = NLP.levenshtein(queryWord, childWord);
-      if (distance <= this._distanceThreshold) {
-        // The word represented by this child node matches the current query
-        // word.  Recurse into the child node.
-        this._traverse({
-          node: child,
-          queryWords,
-          queryWordsIndex: queryWordsIndex + 1,
-          phraseDistance: phraseDistance + distance,
-          minDistanceByDoc,
-        });
-      }
-      // Else, the path that continues at the child node can't possibly match
-      // the query, so don't recurse into it.
-    }
-
-    return minDistanceByDoc;
-  }
-}
-
-/**
- * Gets appropriate l10n values for each tip's payload.
- * @param {string} tip a value from the TIPS enum
- * @returns {object} an Object shaped as { textData, buttonTextData, helpUrl }
- */
-function getL10nPropertiesForTip(tip) {
-  const baseURL = "https://support.mozilla.org/kb/";
-  switch (tip) {
-    case TIPS.CLEAR:
-      return {
-        textData: { id: "intervention-clear-data" },
-        buttonTextData: { id: "intervention-clear-data-confirm" },
-        helpUrl: baseURL + "delete-browsing-search-download-history-firefox",
-      };
-    case TIPS.REFRESH:
-      return {
-        textData: { id: "intervention-refresh-profile" },
-        buttonTextData: { id: "intervention-refresh-profile-confirm" },
-        helpUrl: baseURL + "refresh-firefox-reset-add-ons-and-settings",
-      };
-    case TIPS.UPDATE_ASK:
-      return {
-        textData: { id: "intervention-update-ask" },
-        buttonTextData: { id: "intervention-update-ask-confirm" },
-        helpUrl: baseURL + "update-firefox-latest-release",
-      };
-    case TIPS.UPDATE_REFRESH:
-      return {
-        textData: { id: "intervention-update-refresh" },
-        buttonTextData: { id: "intervention-update-refresh-confirm" },
-        helpUrl: baseURL + "refresh-firefox-reset-add-ons-and-settings",
-      };
-    case TIPS.UPDATE_RESTART:
-      return {
-        textData: { id: "intervention-update-restart" },
-        buttonTextData: { id: "intervention-update-restart-confirm" },
-        helpUrl: baseURL + "update-firefox-latest-release",
-      };
-    case TIPS.UPDATE_WEB:
-      return {
-        textData: { id: "intervention-update-web" },
-        buttonTextData: { id: "intervention-update-web-confirm" },
-        helpUrl: baseURL + "update-firefox-latest-release",
-      };
-    default:
-      throw new Error("Unknown TIP type.");
-  }
-}
+const EN_LOCALE_MATCH = /^en(-.*)$/;
 
 /**
  * A provider that returns actionable tip results when the user is performing
@@ -902,6 +613,295 @@ class ProviderInterventions extends UrlbarProvider {
 }
 
 var UrlbarProviderInterventions = new ProviderInterventions();
+
+/**
+ * A node in the QueryScorer's phrase tree.
+ */
+class Node {
+  constructor(word) {
+    this.word = word;
+    this.documents = new Set();
+    this.childrenByWord = new Map();
+  }
+}
+
+/**
+ * This class scores a query string against sets of phrases.  To refer to a
+ * single set of phrases, we borrow the term "document" from search engine
+ * terminology.  To use this class, first add your documents with `addDocument`,
+ * and then call `score` with a query string.  `score` returns a sorted array of
+ * document-score pairs.
+ *
+ * The scoring method is fairly simple and is based on Levenshtein edit
+ * distance.  Therefore, lower scores indicate a better match than higher
+ * scores.  In summary, a query matches a phrase if the query starts with the
+ * phrase.  So a query "firefox update foo bar" matches the phrase "firefox
+ * update" for example.  A query matches a document if it matches any phrase in
+ * the document.  The query and phrases are compared word for word, and we allow
+ * fuzzy matching by computing the Levenshtein edit distance in each comparison.
+ * The amount of fuzziness allowed is controlled with `distanceThreshold`.  If
+ * the distance in a comparison is greater than this threshold, then the phrase
+ * does not match the query.  The final score for a document is the minimum edit
+ * distance between its phrases and the query.
+ *
+ * As mentioned, `score` returns a sorted array of document-score pairs.  It's
+ * up to you to filter the array to exclude scores above a certain threshold, or
+ * to take the top scorer, etc.
+ */
+class QueryScorer {
+  /**
+   * @param {number} distanceThreshold
+   *   Edit distances no larger than this value are considered matches.
+   * @param {Map} variations
+   *   For convenience, the scorer can augment documents by replacing certain
+   *   words with other words and phrases. This mechanism is called variations.
+   *   This keys of this map are words that should be replaced, and the values
+   *   are the replacement words or phrases.  For example, if you add a document
+   *   whose only phrase is "firefox update", normally the scorer will register
+   *   only this single phrase for the document.  However, if you pass the value
+   *   `new Map(["firefox", ["fire fox", "fox fire", "foxfire"]])` for this
+   *   parameter, it will register 4 total phrases for the document: "fire fox
+   *   update", "fox fire update", "foxfire update", and the original "firefox
+   *   update".
+   */
+  constructor({ distanceThreshold = 1, variations = new Map() } = {}) {
+    this._distanceThreshold = distanceThreshold;
+    this._variations = variations;
+    this._documents = new Set();
+    this._rootNode = new Node();
+  }
+
+  /**
+   * Adds a document to the scorer.
+   *
+   * @param {object} doc
+   *   The document.
+   * @param {string} doc.id
+   *   The document's ID.
+   * @param {array} doc.phrases
+   *   The set of phrases in the document.  Each phrase should be a string.
+   */
+  addDocument(doc) {
+    this._documents.add(doc);
+
+    for (let phraseStr of doc.phrases) {
+      // Split the phrase and lowercase the words.
+      let phrase = phraseStr
+        .trim()
+        .split(/\s+/)
+        .map(word => word.toLocaleLowerCase());
+
+      // Build a phrase list that contains the original phrase plus its
+      // variations, if any.
+      let phrases = [phrase];
+      for (let [triggerWord, variations] of this._variations) {
+        let index = phrase.indexOf(triggerWord);
+        if (index >= 0) {
+          for (let variation of variations) {
+            let variationPhrase = Array.from(phrase);
+            variationPhrase.splice(index, 1, ...variation.split(/\s+/));
+            phrases.push(variationPhrase);
+          }
+        }
+      }
+
+      // Finally, add the phrases to the phrase tree.
+      for (let completedPhrase of phrases) {
+        this._buildPhraseTree(this._rootNode, doc, completedPhrase, 0);
+      }
+    }
+  }
+
+  /**
+   * Scores a query string against the documents in the scorer.
+   *
+   * @param {string} queryString
+   *   The query string to score.
+   * @returns {array}
+   *   An array of objects: { document, score }.  Each element in the array is a
+   *   a document and its score against the query string.  The elements are
+   *   ordered by score from low to high.  Scores represent edit distance, so
+   *   lower scores are better.
+   */
+  score(queryString) {
+    let queryWords = queryString
+      .trim()
+      .split(/\s+/)
+      .map(word => word.toLocaleLowerCase());
+    let minDistanceByDoc = this._traverse({ queryWords });
+    let results = [];
+    for (let doc of this._documents) {
+      let distance = minDistanceByDoc.get(doc);
+      results.push({
+        document: doc,
+        score: distance === undefined ? Infinity : distance,
+      });
+    }
+    results.sort((a, b) => a.score - b.score);
+    return results;
+  }
+
+  /**
+   * Builds the phrase tree based on the current documents.
+   *
+   * The phrase tree lets us efficiently match queries against phrases.  Each
+   * path through the tree starting from the root and ending at a leaf
+   * represents a complete phrase in a document (or more than one document, if
+   * the same phrase is present in multiple documents).  Each node in the path
+   * represents a word in the phrase.  To match a query, we start at the root,
+   * and in the root we look up the query's first word.  If the word matches the
+   * first word of any phrase, then the root will have a child node representing
+   * that word, and we move on to the child node.  Then we look up the query's
+   * second word in the child node, and so on, until either a lookup fails or we
+   * reach a leaf node.
+   *
+   * @param {Node} node
+   *   The current node being visited.
+   * @param {object} doc
+   *   The document whose phrases are being added to the tree.
+   * @param {array} phrase
+   *   The phrase to add to the tree.
+   * @param {number} wordIndex
+   *   The index in the phrase of the current word.
+   */
+  _buildPhraseTree(node, doc, phrase, wordIndex) {
+    if (phrase.length == wordIndex) {
+      // We're done with this phrase.
+      return;
+    }
+
+    let word = phrase[wordIndex].toLocaleLowerCase();
+    let child = node.childrenByWord.get(word);
+    if (!child) {
+      child = new Node(word);
+      node.childrenByWord.set(word, child);
+    }
+    child.documents.add(doc);
+
+    // Recurse with the next word in the phrase.
+    this._buildPhraseTree(child, doc, phrase, wordIndex + 1);
+  }
+
+  /**
+   * Traverses a path in the phrase tree in order to score a query.  See
+   * `_buildPhraseTree` for a description of how this works.
+   *
+   * @param {array} queryWords
+   *   The query being scored, split into words.
+   * @param {Node} node
+   *   The node currently being visited.
+   * @param {Map} minDistanceByDoc
+   *   Keeps track of the minimum edit distance for each document as the
+   *   traversal continues.
+   * @param {number} queryWordsIndex
+   *   The current index in the query words array.
+   * @param {number} phraseDistance
+   *   The total edit distance between the query and the path in the tree that's
+   *   been traversed so far.
+   * @returns {Map} minDistanceByDoc
+   */
+  _traverse({
+    queryWords,
+    node = this._rootNode,
+    minDistanceByDoc = new Map(),
+    queryWordsIndex = 0,
+    phraseDistance = 0,
+  } = {}) {
+    if (!node.childrenByWord.size) {
+      // We reached a leaf node.  The query has matched a phrase.  If the query
+      // and the phrase have the same number of words, then queryWordsIndex ==
+      // queryWords.length also.  Otherwise the query contains more words than
+      // the phrase.  We still count that as a match.
+      for (let doc of node.documents) {
+        minDistanceByDoc.set(
+          doc,
+          Math.min(
+            phraseDistance,
+            minDistanceByDoc.has(doc) ? minDistanceByDoc.get(doc) : Infinity
+          )
+        );
+      }
+      return minDistanceByDoc;
+    }
+
+    if (queryWordsIndex == queryWords.length) {
+      // We exhausted all the words in the query but have not reached a leaf
+      // node.  No match; the query has matched a phrase(s) up to this point,
+      // but it doesn't have enough words.
+      return minDistanceByDoc;
+    }
+
+    // Compare each word in the node to the current query word.
+    let queryWord = queryWords[queryWordsIndex];
+    for (let [childWord, child] of node.childrenByWord) {
+      let distance = NLP.levenshtein(queryWord, childWord);
+      if (distance <= this._distanceThreshold) {
+        // The word represented by this child node matches the current query
+        // word.  Recurse into the child node.
+        this._traverse({
+          node: child,
+          queryWords,
+          queryWordsIndex: queryWordsIndex + 1,
+          phraseDistance: phraseDistance + distance,
+          minDistanceByDoc,
+        });
+      }
+      // Else, the path that continues at the child node can't possibly match
+      // the query, so don't recurse into it.
+    }
+
+    return minDistanceByDoc;
+  }
+}
+
+/**
+ * Gets appropriate l10n values for each tip's payload.
+ * @param {string} tip a value from the TIPS enum
+ * @returns {object} an Object shaped as { textData, buttonTextData, helpUrl }
+ */
+function getL10nPropertiesForTip(tip) {
+  const baseURL = "https://support.mozilla.org/kb/";
+  switch (tip) {
+    case TIPS.CLEAR:
+      return {
+        textData: { id: "intervention-clear-data" },
+        buttonTextData: { id: "intervention-clear-data-confirm" },
+        helpUrl: baseURL + "delete-browsing-search-download-history-firefox",
+      };
+    case TIPS.REFRESH:
+      return {
+        textData: { id: "intervention-refresh-profile" },
+        buttonTextData: { id: "intervention-refresh-profile-confirm" },
+        helpUrl: baseURL + "refresh-firefox-reset-add-ons-and-settings",
+      };
+    case TIPS.UPDATE_ASK:
+      return {
+        textData: { id: "intervention-update-ask" },
+        buttonTextData: { id: "intervention-update-ask-confirm" },
+        helpUrl: baseURL + "update-firefox-latest-release",
+      };
+    case TIPS.UPDATE_REFRESH:
+      return {
+        textData: { id: "intervention-update-refresh" },
+        buttonTextData: { id: "intervention-update-refresh-confirm" },
+        helpUrl: baseURL + "refresh-firefox-reset-add-ons-and-settings",
+      };
+    case TIPS.UPDATE_RESTART:
+      return {
+        textData: { id: "intervention-update-restart" },
+        buttonTextData: { id: "intervention-update-restart-confirm" },
+        helpUrl: baseURL + "update-firefox-latest-release",
+      };
+    case TIPS.UPDATE_WEB:
+      return {
+        textData: { id: "intervention-update-web" },
+        buttonTextData: { id: "intervention-update-web-confirm" },
+        helpUrl: baseURL + "update-firefox-latest-release",
+      };
+    default:
+      throw new Error("Unknown TIP type.");
+  }
+}
 
 /**
  * Tip callbacks follow.
