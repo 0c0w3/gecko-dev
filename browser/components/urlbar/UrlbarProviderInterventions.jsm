@@ -152,18 +152,18 @@ const NLPJS_LANGUAGE_DATA = {
         "firefox delete cache",
         "firefox delete cookies",
         "firefox delete history",
-    //     "firefox not loading",
-    //     "how to clear cache",
-    //     "how to clear history",
+        // "firefox not loading",
+        // "how to clear cache",
+        // "how to clear history",
       ],
       refresh: [
         "firefox crash",
-    //     "firefox keeps crashing",
+        // "firefox keeps crashing",
         "firefox not responding",
         "firefox not working",
         "firefox refresh",
         "firefox slow",
-    //     "how to reset firefox",
+        // "how to reset firefox",
         "firefox reset",
       ],
       update: [
@@ -172,11 +172,11 @@ const NLPJS_LANGUAGE_DATA = {
         "firefox mac",
         "firefox windows",
         "firefox install",
-    //     "firefox latest version",
+        // "firefox latest version",
         "firefox update",
-    //     "firefox version",
-    //     "firefox get",
-    //     "how to update firefox",
+        // "firefox version",
+        // "firefox get",
+        // "how to update firefox",
       ],
     },
   },
@@ -200,11 +200,13 @@ const NLPJS_LANGUAGE_DATA = {
         "firefox インストール",
         "firefox アップデート",
         "firefox バージョン",
-    //     "firefox 最新リリース",
+        // "firefox 最新リリース",
       ],
     },
   },
 };
+
+const NLPJS_LOCALES = Object.keys(NLPJS_LANGUAGE_DATA);
 
 // In order to determine whether we should show an update tip, we check for app
 // updates, but only once per this time period.
@@ -530,7 +532,7 @@ class ProviderInterventions extends UrlbarProvider {
           ["mozilla", ["mozila"]],
         ]),
       });
-      for (let [id, phrases] of Object.entries(DOCUMENTS)) {
+      for (let [id, phrases] of Object.entries(PHRASE_TREE_DOCUMENTS)) {
         queryScorer.addDocument({ id, phrases });
       }
       return queryScorer;
@@ -623,8 +625,18 @@ class ProviderInterventions extends UrlbarProvider {
   async isActive(queryContext) {
     if (
       !queryContext.searchString ||
-//       !EN_LOCALE_MATCH.test(Services.locale.appLocaleAsBCP47) ||
       !Services.policies.isAllowed("urlbarinterventions")
+    ) {
+      return false;
+    }
+
+    let locale = Services.locale.appLocaleAsBCP47;
+    let localeLang = locale.split("-")[0];
+    let nlpjsEnabled = this._nlpjsEnabled;
+    if (
+      (nlpjsEnabled &&
+        !NLPJS_LOCALES.find(l => l == locale || l == localeLang)) ||
+      (!nlpjsEnabled && !EN_LOCALE_MATCH.test(Services.locale.appLocaleAsBCP47))
     ) {
       return false;
     }
@@ -632,7 +644,7 @@ class ProviderInterventions extends UrlbarProvider {
     this.currentTip = TIPS.NONE;
 
     let topDocIDs = new Set();
-    if (this._nlpjsEnabled) {
+    if (nlpjsEnabled) {
       if (!this._nlp) {
         console.log(`***XXX UPI.isActive, !this._nlp`);
         return false;
